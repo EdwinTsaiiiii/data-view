@@ -12,6 +12,22 @@ const routes = [
     path: "/trendpage",
     component: () => import("@/view/TrendPage"),
   },
+	{
+    path: "/mappage",
+    component: () => import("@/view/MapPage"),
+  },
+	{
+    path: "/rankpage",
+    component: () => import("@/view/RankPage"),
+  },
+	{
+    path: "/hotpage",
+    component: () => import("@/view/HotPage"),
+  },
+	{
+    path: "/stockpage",
+    component: () => import("@/view/StockPage"),
+  },
 ];
 
 const router = new VueRouter({

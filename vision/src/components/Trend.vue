@@ -1,3 +1,4 @@
+<!-- 销量趋势图表——折线图 -->
 <template>
   <div class="com-container">
     <div class="title" :style="comStyle">
@@ -30,7 +31,6 @@ export default {
       allData: null,
       showChoice: false,
       choiceType: "map", // 显示的数据类型
-      timer: null,
       titleFontSize: 0, // 指明标题的字体大小
     };
   },
@@ -95,6 +95,7 @@ export default {
         this.allData = ret.data;
       } else {
         alert("获取销量数据失败！");
+				return;
       }
       this.updateChart();
     },
@@ -186,7 +187,6 @@ export default {
     this.screenAdapter();
   },
   destroyed() {
-    clearInterval(this.timer);
     window.removeEventListener("resize", this.screenAdapter);
   },
 };

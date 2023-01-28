@@ -1,4 +1,4 @@
-<!-- 商家销量统计的横向柱状图 -->
+<!-- 商家销量统计——横向柱状图 -->
 <template>
   <div class="com-container">
     <div class="com-chart" ref="seller_ref"></div>
@@ -111,6 +111,7 @@ export default {
         this.startInterval();
       } else {
         alert("获取销量数据失败！");
+				return;
       }
     },
     // 更新图表
