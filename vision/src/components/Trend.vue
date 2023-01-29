@@ -8,7 +8,7 @@
         :style="comStyle"
         >▍{{ showTitle }}&nbsp;&#xe6eb;</span
       >
-      <div class="select-con" v-show="showChoice">
+      <div :class="selectConStyle" v-show="showChoice">
         <div
           class="select-item"
           v-for="item in selectTypes"
@@ -48,12 +48,18 @@ export default {
     // 设置给标题的样式
     comStyle() {
       return {
-        fontSize: this.titleFontSize * 0.8 + "px",
+        fontSize: this.titleFontSize + "px",
+        fontWeight: 700,
         color: getThemeValue(this.theme).titleColor,
+        left: 20,
+        top: 20,
       };
     },
     marginStyle() {
-      return { marginLeft: this.titleFontSize * 0.6 + "px" };
+      return { marginLeft: this.titleFontSize + "px" };
+    },
+    selectConStyle() {
+      return { backgroundColor: getThemeValue(this.theme).selectConStyle };
     },
     ...mapState(["theme"]),
   },
@@ -73,7 +79,7 @@ export default {
           top: "20%",
           left: "3%",
           right: "6%",
-          bottom: "12%",
+          bottom: "15%",
           containLabel: true,
         },
         tooltip: {
@@ -154,8 +160,8 @@ export default {
       this.chartInstance.setOption(dataOption);
     },
     screenAdapter() {
-      const widthSize = (this.$refs.trend_ref.offsetWidth / 100) * 2;
-      const heightSize = (this.$refs.trend_ref.offsetHeight / 100) * 2.5;
+      const widthSize = (this.$refs.trend_ref.offsetWidth / 100) * 3.2;
+      const heightSize = (this.$refs.trend_ref.offsetHeight / 100) * 3.8;
       this.titleFontSize =
         widthSize > heightSize * 2.4 || widthSize < heightSize
           ? heightSize
@@ -163,9 +169,9 @@ export default {
       // 分辨率相关的配置项
       const adapterOption = {
         legend: {
-          itemWidth: this.titleFontSize * 0.8,
-          itemHeight: this.titleFontSize * 0.8,
-          itemGap: this.titleFontSize * 2,
+          itemWidth: this.titleFontSize * 0.6,
+          itemHeight: this.titleFontSize * 0.6,
+          itemGap: this.titleFontSize * 1.5,
           textStyle: {
             fontSize: this.titleFontSize * 0.8,
           },

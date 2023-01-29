@@ -54,7 +54,7 @@ export default {
           top: 20,
         },
         legend: {
-          top: "15%",
+          top: "17%",
           icon: "circle",
         },
         tooltip: {
@@ -120,8 +120,8 @@ export default {
       this.chartInstance.setOption(dataOption);
     },
     screenAdapter() {
-      const widthSize = (this.$refs.hot_ref.offsetWidth / 100) * 3.2;
-      const heightSize = (this.$refs.hot_ref.offsetHeight / 100) * 3.8;
+      const widthSize = (this.$refs.hot_ref.offsetWidth / 100) * 2.4;
+      const heightSize = (this.$refs.hot_ref.offsetHeight / 100) * 3.2;
       this.titleFontSize =
         widthSize > heightSize * 2.4 || widthSize < heightSize
           ? heightSize
@@ -129,20 +129,20 @@ export default {
       const adapterOption = {
         title: {
           textStyle: {
-            fontSize: this.titleFontSize,
+            fontSize: this.titleFontSize * 1.4,
           },
         },
         legend: {
-          itemWidth: this.titleFontSize / 2,
-          itemHeight: this.titleFontSize / 2,
-          itemGap: this.titleFontSize / 2,
+          itemWidth: this.titleFontSize,
+          itemHeight: this.titleFontSize,
+          itemGap: this.titleFontSize,
           textStyle: {
-            fontSize: this.titleFontSize / 2,
+            fontSize: this.titleFontSize,
           },
         },
         series: [
           {
-            radius: this.titleFontSize * 4.5,
+            radius: this.titleFontSize * 7.2,
             center: ["50%", "60%"],
           },
         ],

@@ -9,7 +9,6 @@ import * as md from "@/main.js";
 import { getProvinceMapInfo } from "@/utils/map_utils";
 import axios from "axios";
 import { mapState } from "vuex";
-import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -101,6 +100,8 @@ export default {
     updateChart() {
       // 图例的数据
       const legendArr = this.allData.map((item) => item.name);
+			// 散点的颜色
+			const colorArr = ["#E8B11C","#0BA82C","#E55445"]
       // return的对象代表一个类别下的所有散点数据
       const seriesArr = this.allData.map((item) => {
         return {
@@ -112,6 +113,7 @@ export default {
           name: item.name,
           data: item.children,
           coordinateSystem: "geo",
+					color:colorArr[this.allData.indexOf(item)]
         };
       });
       const dataOption = {

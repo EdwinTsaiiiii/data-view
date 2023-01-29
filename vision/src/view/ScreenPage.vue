@@ -10,7 +10,7 @@
       <span class="title">电商平台实时监控系统</span>
       <div class="title-right">
         <img :src="themeSrc" class="qiehuan" @click="handleChangeTheme" />
-        <span class="datetime">2049-01-01 00:00:00</span>
+        <span class="datetime">{{ this.time }}</span>
       </div>
     </header>
     <div class="screen-body">
@@ -20,6 +20,10 @@
           :class="[fullScreenStatus.trend ? 'fullscreen' : '']"
         >
           <!-- 销量趋势图表 -->
+          <span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Trend ref="trend"></Trend>
           <div class="resize">
             <div
@@ -38,6 +42,10 @@
           :class="[fullScreenStatus.seller ? 'fullscreen' : '']"
         >
           <!-- 商家销售金额图表 -->
+					<span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Seller ref="seller"></Seller>
           <div class="resize">
             <div
@@ -58,6 +66,10 @@
           :class="[fullScreenStatus.map ? 'fullscreen' : '']"
         >
           <!-- 商家分布图表 -->
+					<span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Map ref="map"></Map>
           <div class="resize">
             <div
@@ -74,6 +86,10 @@
           :class="[fullScreenStatus.rank ? 'fullscreen' : '']"
         >
           <!-- 地区销量排行图表 -->
+					<span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Rank ref="rank"></Rank>
           <div class="resize">
             <div
@@ -89,6 +105,10 @@
       <section class="screen-right">
         <div id="right-top" :class="[fullScreenStatus.hot ? 'fullscreen' : '']">
           <!-- 热销商品占比图表 -->
+					<span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Hot ref="hot"></Hot>
           <div class="resize">
             <div
@@ -105,6 +125,10 @@
           :class="[fullScreenStatus.stock ? 'fullscreen' : '']"
         >
           <!-- 库存销量分析图表 -->
+					<span class="angle1"></span>
+          <span class="angle2"></span>
+          <span class="angle3"></span>
+          <span class="angle4"></span>
           <Stock ref="stock"></Stock>
           <div class="resize">
             <div
@@ -151,6 +175,8 @@ export default {
         hot: false,
         rank: false,
       },
+      time: null,
+      timer: null,
     };
   },
   computed: {
@@ -214,14 +240,51 @@ export default {
     recvThemeChange() {
       this.$store.commit("changeTheme");
     },
+    // 获取当今时间
+    getTime() {
+      let date = new Date();
+      let year = date.getFullYear();
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+      let hour = date.getHours();
+      let minute = date.getMinutes();
+      let second = date.getSeconds();
+      this.time =
+        year +
+        "-" +
+        this.addZero(month) +
+        "-" +
+        this.addZero(day) +
+        " " +
+        this.addZero(hour) +
+        ":" +
+        this.addZero(minute) +
+        ":" +
+        this.addZero(second);
+    },
+    addZero(s) {
+      return s < 10 ? "0" + s : s;
+    },
+    startInterval() {
+      if (this.timer) clearInterval(this.timer);
+      let _this = this;
+      this.timer = setInterval(() => {
+        _this.getTime();
+      }, 1000);
+    },
   },
   created() {
     this.$socket.registerCallBack("fullScreen", this.recvData);
     this.$socket.registerCallBack("themeChange", this.recvThemeChange);
   },
+  mounted() {
+    this.getTime();
+    this.startInterval();
+  },
   destroyed() {
     this.$socket.unRegisterCallBack("fullScreen");
     this.$socket.unRegisterCallBack("themeChange");
+    clearInterval(this.timer);
   },
 };
 </script>
@@ -294,7 +357,7 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  margin-top: 10px;
+  margin-top: 30px;
   .screen-left {
     height: 100%;
     width: 27.6%;

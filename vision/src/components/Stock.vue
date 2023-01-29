@@ -19,6 +19,13 @@ export default {
   },
   computed: {
     ...mapState(["theme"]),
+		// 设置给标题的样式
+    comStyle() {
+      return {
+        fontSize: this.titleFontSize * 0.8 + "px",
+        color: getThemeValue(this.theme).titleColor,
+      };
+    },
   },
   watch: {
     theme() {
@@ -91,7 +98,7 @@ export default {
             {
               value: item.stock,
               itemStyle: {
-                color: "#333843",
+                color:  getThemeValue(this.theme).pieColor,
               },
             },
           ],
@@ -112,21 +119,21 @@ export default {
       this.chartInstance.setOption(dataOption);
     },
     screenAdapter() {
-      const widthSize = (this.$refs.stock_ref.offsetWidth / 100) * 3.6;
-      const heightSize = (this.$refs.stock_ref.offsetHeight / 100) * 3.8;
+      const widthSize = (this.$refs.stock_ref.offsetWidth / 100) * 2.8;
+      const heightSize = (this.$refs.stock_ref.offsetHeight / 100) * 3.2;
       this.titleFontSize =
         widthSize > heightSize * 2.4 || widthSize < heightSize
           ? heightSize
           : widthSize;
-      const innerRadius = this.titleFontSize * 2;
-      const outerRadius = innerRadius * 1.125;
+      const innerRadius = this.titleFontSize * 3.2;
+      const outerRadius = innerRadius * 1.2;
       const seriesArr = [];
       for (let i = 0; i < 5; i++) {
         const item = {
           type: "pie",
           radius: [outerRadius, innerRadius],
           label: {
-            fontSize: this.titleFontSize / 2,
+            fontSize: this.titleFontSize * 0.8,
           },
         };
         seriesArr.push(item);
@@ -134,7 +141,7 @@ export default {
       const adapterOption = {
         title: {
           textStyle: {
-            fontSize: this.titleFontSize / 2,
+            fontSize: this.titleFontSize * 1.4,
           },
         },
         series: seriesArr,

@@ -6,7 +6,6 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -39,7 +38,7 @@ export default {
           left: 20,
         },
         grid: {
-          top: "40%",
+          top: "30%",
           left: "5%",
           right: "5%",
           bottom: "5%",
@@ -114,8 +113,8 @@ export default {
       this.chartInstance.setOption(dataOption);
     },
     screenAdapter() {
-      const widthSize = (this.$refs.rank_ref.offsetWidth / 100) * 3.2;
-      const heightSize = (this.$refs.rank_ref.offsetHeight / 100) * 3.8;
+      const widthSize = (this.$refs.rank_ref.offsetWidth / 100) * 2.6;
+      const heightSize = (this.$refs.rank_ref.offsetHeight / 100) * 4;
       this.titleFontSize =
         widthSize > heightSize * 2.4 || widthSize < heightSize
           ? heightSize

@@ -6,7 +6,6 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -39,6 +38,8 @@ export default {
       const initOption = {
         title: {
           text: "▍商家销售统计",
+					left: 20,
+          top: 20,
         },
         grid: {
           top: "20%",
