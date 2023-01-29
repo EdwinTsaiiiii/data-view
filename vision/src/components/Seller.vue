@@ -5,6 +5,8 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -15,10 +17,24 @@ export default {
       timer: null, // 定时器标识
     };
   },
+  computed: {
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
+  },
   methods: {
     // 初始化echartInstance对象
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.seller_ref, "chalk");
+      this.chartInstance = this.$echarts.init(
+        this.$refs.seller_ref,
+        this.theme
+      );
       // 对图表初始化配置的控制
       const initOption = {
         title: {
@@ -93,26 +109,19 @@ export default {
       });
     },
     // 获取服务器的数据
-    async getData() {
-      // http://127.0.0.1:8888/api/seller
-      const ret = await this.$http.get("seller");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-        // 对数据排序
-        this.allData.sort((a, b) => a.value - b.value);
-        // 每5个元素显示一页
-        this.totalPage =
-          this.allData.length % 5 === 0
-            ? this.allData.length / 5
-            : this.allData.length / 5 + 1;
-        // 更新图表
-        this.updateChart();
-        // 启动定时器
-        this.startInterval();
-      } else {
-        alert("获取销量数据失败！");
-				return;
-      }
+    async getData(ret) {
+      this.allData = ret;
+      // 对数据排序
+      this.allData.sort((a, b) => a.value - b.value);
+      // 每5个元素显示一页
+      this.totalPage =
+        this.allData.length % 5 === 0
+          ? this.allData.length / 5
+          : this.allData.length / 5 + 1;
+      // 更新图表
+      this.updateChart();
+      // 启动定时器
+      this.startInterval();
     },
     // 更新图表
     updateChart() {
@@ -148,7 +157,10 @@ export default {
     screenAdapter() {
       const widthSize = (this.$refs.seller_ref.offsetWidth / 100) * 3.2;
       const heightSize = (this.$refs.seller_ref.offsetHeight / 100) * 3.8;
-      const realSize = widthSize > heightSize * 2.4 || widthSize < heightSize ? heightSize : widthSize;
+      const realSize =
+        widthSize > heightSize * 2.4 || widthSize < heightSize
+          ? heightSize
+          : widthSize;
       // 分辨率相关的配置项
       const adapterOption = {
         title: {
@@ -179,9 +191,17 @@ export default {
       this.chartInstance.resize();
     },
   },
+  created() {
+    this.$socket.registerCallBack("sellerData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    this.$socket.send({
+      action: "getData",
+      socketType: "sellerData",
+      chartName: "seller",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     // 在界面加载完成时，主动进行屏幕的适配
     this.screenAdapter();
@@ -189,6 +209,7 @@ export default {
   destroyed() {
     clearInterval(this.timer);
     window.removeEventListener("resize", this.screenAdapter);
+    this.$socket.unRegisterCallBack("sellerData");
   },
 };
 </script>

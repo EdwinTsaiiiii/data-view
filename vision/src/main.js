@@ -5,6 +5,11 @@ import store from "./store";
 import axios from "axios";
 import "./assets/css/global.less";
 import "./assets/font/iconfont.css";
+import SocketService from "@/utils/socket_service";
+// 对服务端进行websocket连接
+SocketService.Instance.connect();
+// 把instance实例对象挂载到vue原型对象上
+Vue.prototype.$socket = SocketService.instance;
 // 配置请求基准路径
 axios.defaults.baseURL = "http://127.0.0.1:8888/api/";
 // 配置前端项目部署路径，地图需要使用到，就统一在这里配置

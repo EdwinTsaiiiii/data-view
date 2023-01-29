@@ -2,12 +2,18 @@
 <template>
   <div class="com-container">
     <div class="com-chart" ref="hot_ref"></div>
-    <span class="iconfont arr-left" @click="toLeft" :style="comStyle">&#xe6ef;</span>
-    <span class="iconfont arr-right" @click="toRight" :style="comStyle">&#xe6ed;</span>
+    <span class="iconfont arr-left" @click="toLeft" :style="comStyle"
+      >&#xe6ef;</span
+    >
+    <span class="iconfont arr-right" @click="toRight" :style="comStyle"
+      >&#xe6ed;</span
+    >
     <span class="cat-name" :style="comStyle">{{ catName }}</span>
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -22,15 +28,25 @@ export default {
       if (!this.allData) return "";
       else return this.allData[this.currentIndex].name;
     },
-		comStyle(){
-			return{
-				fontSize:this.titleFontSize + 'px'
-			}
-		}
+    comStyle() {
+      return {
+        fontSize: this.titleFontSize + "px",
+        color: getThemeValue(this.theme).titleColor,
+      };
+    },
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
   },
   methods: {
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.hot_ref, "chalk");
+      this.chartInstance = this.$echarts.init(this.$refs.hot_ref, this.theme);
       const initOption = {
         title: {
           text: "▍热销商品的占比",
@@ -70,14 +86,8 @@ export default {
       };
       this.chartInstance.setOption(initOption);
     },
-    async getData() {
-      const ret = await this.$http.get("hotproduct");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-      } else {
-        alert("获取热销数据失败！");
-        return;
-      }
+    async getData(ret) {
+      this.allData = ret;
       this.updateChart();
     },
     updateChart() {
@@ -151,14 +161,23 @@ export default {
       this.updateChart();
     },
   },
+  created() {
+    this.$socket.registerCallBack("hotData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    this.$socket.send({
+      action: "getData",
+      socketType: "hotData",
+      chartName: "hotproduct",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
   },
   destroyed() {
     window.removeEventListener("resize", this.screenAdapter);
+    this.$socket.unRegisterCallBack("mapData");
   },
 };
 </script>

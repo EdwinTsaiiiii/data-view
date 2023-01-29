@@ -5,28 +5,12 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/sellerpage",
-    component: () => import("@/view/SellerPage"),
+    path: "/",
+    redirect: "/screen",
   },
-	{
-    path: "/trendpage",
-    component: () => import("@/view/TrendPage"),
-  },
-	{
-    path: "/mappage",
-    component: () => import("@/view/MapPage"),
-  },
-	{
-    path: "/rankpage",
-    component: () => import("@/view/RankPage"),
-  },
-	{
-    path: "/hotpage",
-    component: () => import("@/view/HotPage"),
-  },
-	{
-    path: "/stockpage",
-    component: () => import("@/view/StockPage"),
+  {
+    path: "/screen",
+    component: () => import("@/view/ScreenPage"),
   },
 ];
 

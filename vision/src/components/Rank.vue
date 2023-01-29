@@ -5,6 +5,8 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -16,9 +18,20 @@ export default {
       titleFontSize: 0,
     };
   },
+  computed: {
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
+  },
   methods: {
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.rank_ref, "chalk");
+      this.chartInstance = this.$echarts.init(this.$refs.rank_ref, this.theme);
       const initOption = {
         title: {
           text: "▍地区销售排行",
@@ -51,15 +64,9 @@ export default {
         this.startInterval();
       });
     },
-    async getData() {
-      const ret = await this.$http.get("rank");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-        this.allData.sort((a, b) => b.value - a.value);
-      } else {
-        alert("获取排行数据失败！");
-        return;
-      }
+    async getData(ret) {
+      this.allData = ret;
+      this.allData.sort((a, b) => b.value - a.value);
       this.updateChart();
     },
     updateChart() {
@@ -151,9 +158,17 @@ export default {
       }, 2000);
     },
   },
+  created() {
+    this.$socket.registerCallBack("rankData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    this.$socket.send({
+      action: "getData",
+      socketType: "rankData",
+      chartName: "rank",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
     this.startInterval();
@@ -161,6 +176,7 @@ export default {
   destroyed() {
     window.removeEventListener("resize", this.screenAdapter);
     clearInterval(this.timer);
+    this.$socket.unRegisterCallBack("rankData");
   },
 };
 </script>

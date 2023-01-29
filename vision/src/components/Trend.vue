@@ -13,7 +13,7 @@
           class="select-item"
           v-for="item in selectTypes"
           :key="item.key"
-					:style="marginStyle"
+          :style="marginStyle"
           @click="handleSelect(item.key)"
         >
           {{ item.text }}
@@ -24,6 +24,8 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -44,26 +46,28 @@ export default {
       return !this.allData ? "" : this.allData[this.choiceType].title;
     },
     // 设置给标题的样式
-    comStyle: {
-      get() {
-        return { fontSize: this.titleFontSize * 0.8 + "px" };
-      },
-      set(val) {
-        this.titleFontSize = val;
-      },
+    comStyle() {
+      return {
+        fontSize: this.titleFontSize * 0.8 + "px",
+        color: getThemeValue(this.theme).titleColor,
+      };
     },
-		marginStyle:{
-			get() {
-        return { marginLeft: this.titleFontSize * 0.6 + "px" };
-      },
-      set(val) {
-        this.titleFontSize = val;
-      },
-		}
+    marginStyle() {
+      return { marginLeft: this.titleFontSize * 0.6 + "px" };
+    },
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
   },
   methods: {
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.trend_ref, "chalk");
+      this.chartInstance = this.$echarts.init(this.$refs.trend_ref, this.theme);
       const initOption = {
         grid: {
           top: "20%",
@@ -89,14 +93,10 @@ export default {
       };
       this.chartInstance.setOption(initOption);
     },
-    async getData() {
-      const ret = await this.$http.get("trend");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-      } else {
-        alert("获取销量数据失败！");
-				return;
-      }
+    // ret是服务端发送给客户端的图表的数据
+    async getData(ret) {
+      // const ret = await this.$http.get("trend");
+      this.allData = ret;
       this.updateChart();
     },
     updateChart() {
@@ -180,14 +180,27 @@ export default {
       this.showChoice = false;
     },
   },
+  created() {
+    // 组件创建完成之后，进行回调函数的注册
+    this.$socket.registerCallBack("trendData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    // this.getData();
+    // 发送数据给服务器，告诉服务器，现在需要数据
+    this.$socket.send({
+      action: "getData",
+      socketType: "trendData",
+      chartName: "trend",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
   },
   destroyed() {
     window.removeEventListener("resize", this.screenAdapter);
+    // 在组件销毁之后，进行回调函数的取消
+    this.$socket.unRegisterCallBack("trendData");
   },
 };
 </script>
@@ -202,8 +215,8 @@ export default {
   .title-icon {
     margin-left: 5px;
   }
-	.select-con{
-		background-color: #222733;
-	}
+  .select-con {
+    background-color: #222733;
+  }
 }
 </style>

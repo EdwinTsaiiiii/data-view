@@ -5,6 +5,8 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -15,9 +17,20 @@ export default {
       titleFontSize: 0,
     };
   },
+  computed: {
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
+  },
   methods: {
     initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.stock_ref, "chalk");
+      this.chartInstance = this.$echarts.init(this.$refs.stock_ref, this.theme);
       const initOption = {
         title: {
           text: "▍库存和销量分析",
@@ -33,14 +46,8 @@ export default {
         this.startInterval();
       });
     },
-    async getData() {
-      const ret = await this.$http.get("stock");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-      } else {
-        alert("获取库存数据失败！");
-        return;
-      }
+    async getData(ret) {
+      this.allData = ret;
       this.updateChart();
     },
     updateChart() {
@@ -143,9 +150,17 @@ export default {
       }, 5000);
     },
   },
+  created() {
+    this.$socket.registerCallBack("stockData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    this.$socket.send({
+      action: "getData",
+      socketType: "stockData",
+      chartName: "stock",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
     this.startInterval();
@@ -153,6 +168,7 @@ export default {
   destroyed() {
     window.removeEventListener("resize", this.screenAdapter);
     clearInterval(this.timer);
+    this.$socket.unRegisterCallBack("stockData");
   },
 };
 </script>

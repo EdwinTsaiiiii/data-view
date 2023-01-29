@@ -8,6 +8,8 @@
 import * as md from "@/main.js";
 import { getProvinceMapInfo } from "@/utils/map_utils";
 import axios from "axios";
+import { mapState } from "vuex";
+import { getThemeValue } from "@/utils/theme_utils";
 export default {
   data() {
     return {
@@ -16,12 +18,23 @@ export default {
       titleFontSize: 0,
       isClick: false, // 判断是否点击地图
       mapData: {}, // 所获取的省份的地图矢量数据
-			locationList:[] //用户地址列表
+      locationList: [], //用户地址列表
     };
+  },
+  computed: {
+    ...mapState(["theme"]),
+  },
+  watch: {
+    theme() {
+      this.chartInstance.dispose(); // 销户当前的图表
+      this.initChart();
+      this.screenAdapter();
+      this.updateChart();
+    },
   },
   methods: {
     async initChart() {
-      this.chartInstance = this.$echarts.init(this.$refs.map_ref, "chalk");
+      this.chartInstance = this.$echarts.init(this.$refs.map_ref, this.theme);
       // 获取中国地图的矢量数据
       // 注意获取的地图矢量数据不是在koa2后台，而是在前端项目里面
       const ret = await axios.get(md.mapURL + "/static/map/china.json");
@@ -50,7 +63,11 @@ export default {
       };
       this.chartInstance.setOption(initOption);
       this.chartInstance.on("click", async (arg) => {
-        if (this.isClick || arg.name === "南海诸岛" || this.locationList.includes(arg.name)) {
+        if (
+          this.isClick ||
+          arg.name === "南海诸岛" ||
+          this.locationList.includes(arg.name)
+        ) {
           alert("暂无详细数据！");
           return;
         }
@@ -71,20 +88,14 @@ export default {
         this.chartInstance.setOption(changeOption);
       });
     },
-    async getData() {
-      const ret = await this.$http.get("map");
-      if (ret.status === 200) {
-        this.allData = ret.data;
-				// 获取会员列表
-				this.allData.forEach(item => {
-					item.children.forEach(subitem => {
-						this.locationList.push(subitem.name)
-					})
-				})
-      } else {
-        alert("获取地图数据失败！");
-        return;
-      }
+    async getData(ret) {
+      this.allData = ret;
+      // 获取会员列表
+      this.allData.forEach((item) => {
+        item.children.forEach((subitem) => {
+          this.locationList.push(subitem.name);
+        });
+      });
       this.updateChart();
     },
     updateChart() {
@@ -147,14 +158,23 @@ export default {
       this.chartInstance.setOption(revertOption);
     },
   },
+  created() {
+    this.$socket.registerCallBack("mapData", this.getData);
+  },
   mounted() {
     this.initChart();
-    this.getData();
+    this.$socket.send({
+      action: "getData",
+      socketType: "mapData",
+      chartName: "map",
+      value: "",
+    });
     window.addEventListener("resize", this.screenAdapter);
     this.screenAdapter();
   },
   destroyed() {
     window.removeEventListener("resize", this.screenAdapter);
+    this.$socket.unRegisterCallBack("mapData");
   },
 };
 </script>
