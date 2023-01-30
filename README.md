@@ -13,7 +13,7 @@ npm run serve
 
 效果展示
 
-https://user-images.githubusercontent.com/99068236/215377888-cc29f1c5-9e43-46a6-87ff-4a20d6fe1e4a.png
+![image](https://user-images.githubusercontent.com/99068236/215409528-1acaf845-bc92-4c96-a7ba-42b9632d2bd2.png)
 
 学习心得
 
